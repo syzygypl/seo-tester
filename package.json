@@ -1,6 +1,10 @@
 {
   "name": "seotest",
   "version": "0.2.0",
+  "repository" :
+    { "type" : "git",
+      "url" : "https://github.com/syzygypl/seo-tester"
+    },
   "description": "Simple crawler that tests site against basic SEO rules",
   "main": "seotest.js",
   "scripts": {
@@ -13,7 +17,8 @@
     "jquery": "^3.1.0",
     "jsdom": "^9.4.2",
     "simplecrawler": "^1.0.1",
-    "string": "^3.3.1"
+    "string": "^3.3.1",
+    "csv-write-stream": "^2.0.0"
   },
   "devDependencies": {
     "eslint": "^3.3.1",

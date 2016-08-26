@@ -5,6 +5,11 @@ const string = require('string');
 const jquery = require('jquery');
 const fs = require('fs');
 const path = require('path');
+const writeCsv = require('csv-write-stream');
+
+const writer = writeCsv({headers: ['url','type of error','class/message','href/src/h1 message']});
+
+
 
 const rulesDir = 'rules';
 const normalizedPath = path.join(__dirname, rulesDir);
@@ -22,6 +27,8 @@ function downloadSite(initialUrl) {
   myCrawler.maxConcurrency = 5;
   myCrawler.decodeResponses = true;
 
+  writer.pipe(fs.createWriteStream('results.csv'))
+
   myCrawler.on('fetchcomplete', (queueItem, responseBuffer, response) => {
     if (!string(response.headers['content-type']).startsWith('text/html')) {
       return;
@@ -35,7 +42,7 @@ function downloadSite(initialUrl) {
         const errors = [];
 
         rules.forEach(rule => {
-          rule($, errors);
+          rule($, errors, queueItem);
         });
 
         if (errors.length > 0) {
@@ -43,14 +50,17 @@ function downloadSite(initialUrl) {
             responseBuffer.length, response.headers['content-type']);
 
           while (errors.length > 0) {
-            console.log(colors.red(errors.shift()));
+            writer.write(errors.shift());
           }
         }
       }
     );
   });
 
-  myCrawler.on('complete', () => console.log('Done!'));
+  myCrawler.on('complete', () => {
+    writer.end()
+    console.log('Done!')
+  });
 
   myCrawler.start();
 }
