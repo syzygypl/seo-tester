@@ -56,7 +56,7 @@ function downloadSite(initialUrl, rules) {
           bufferLength: responseBuffer.length,
           contentType: response.headers['content-type'],
         };
-        const results = new Results(false, params);
+        const results = new Results(true, params);
 
         const rulePromises = [];
         rules.forEach(rule => {
