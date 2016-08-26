@@ -1,3 +1,4 @@
+require('dotenv').config({ silent: true });
 const Crawler = require('simplecrawler');
 const jsdom = require('jsdom');
 const colors = require('colors');
@@ -60,9 +61,9 @@ if (process.argv.length < 3) {
   process.exit(1);
 }
 
-const enabledRules = process.argv.splice(3).map(rule => {
-  return string(rule).chompRight('.js').toString();
-});
+const enabledRules = process.argv.splice(3).map(rule => (
+  string(rule).chompRight('.js').toString()
+));
 
 const rulesDir = 'rules';
 const normalizedPath = path.join(__dirname, rulesDir);
