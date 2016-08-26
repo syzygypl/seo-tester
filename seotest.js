@@ -26,7 +26,7 @@ class Results {
       console.log(`Results for ${this.params.url}`
         + colors.dim(` (${this.params.bufferLength} bytes, type ${this.params.contentType})`));
 
-      this.results.forEach(result => {
+      results.forEach(result => {
         const printWithColor = result.isError ? colors.red : colors.green;
         console.log(printWithColor(result.message));
       });
