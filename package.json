@@ -1,13 +1,13 @@
 {
   "name": "seotest",
   "version": "0.2.0",
-  "description": "",
+  "description": "Simple crawler that tests site against basic SEO rules",
   "main": "seotest.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Syzygy Warsaw",
+  "license": "MIT",
   "dependencies": {
     "colors": "^1.1.2",
     "jquery": "^3.1.0",
