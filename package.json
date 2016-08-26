@@ -1,6 +1,6 @@
 {
   "name": "seotest",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Simple crawler that tests site against basic SEO rules",
   "main": "seotest.js",
   "scripts": {
