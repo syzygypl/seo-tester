@@ -40,9 +40,6 @@ function downloadSite(initialUrl) {
           }
         });
 
-        if ($('img.navigation__logo-img').length < 1) {
-          console.log(errors.push('No img logo found'));
-        }
         const a = $('a');
         a.each((index, element) => {
           const title = element ? $(element).prop('title') : '';
@@ -50,11 +47,6 @@ function downloadSite(initialUrl) {
             errors.push(sprintf.sprintf('Link has no title, href: %s', $(element).prop('href')));
           }
         });
-
-        const title = $('title').html();
-        if (!title || !str(title).endsWith('| BebiKlub')) {
-          errors.push(sprintf.sprintf('Title is BROKEN, title: %s', title));
-        }
 
         if (errors.length > 0) {
           console.log(colors.dim('Just received %s (%d bytes, type %s)'), queueItem.url,
