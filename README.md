@@ -1,6 +1,7 @@
 # Usage
 
 ```bash
+pull repo
 npm install
 node seotest.js http://testsite.com
 ```
