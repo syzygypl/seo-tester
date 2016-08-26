@@ -3,7 +3,7 @@
 ```bash
 pull repo
 npm install
-node seotest.js http://testsite.com
+node seotest.js http://testsite.com [enabled-rules, ...]
 ```
 
 # Current tests
