@@ -8,7 +8,7 @@ if (!apiKey) {
     'PageSpeed rule won\'t work without PAGE_SPEED_API_KEY env (check .env-example file)');
 }
 
-module.exports = ($, errors, params) => (
+module.exports = ($, results, params) => (
   new Promise((resolve, reject) => {
     const pageSpeedRequestUrl =
       'https://www.googleapis.com/pagespeedonline/v2/runPagespeed?'
@@ -18,16 +18,31 @@ module.exports = ($, errors, params) => (
       url: pageSpeedRequestUrl,
       json: true,
     }, (error, response, body) => {
-      if (error || response.statusCode !== 200) {
-        errors.push('PageSpeed error', body);
+      const pageSpeedError = error || response.statusCode !== 200;
+      let isError = pageSpeedError;
 
+      let speedScore;
+      let message;
+
+      if (pageSpeedError) {
+        message = 'PageSpeed error';
+      } else {
+        speedScore = body.ruleGroups.SPEED.score;
+        isError = !speedScore || speedScore < speedErrorThreshold;
+        message = `Speed score is ${speedScore}`;
+      }
+
+      results.saveResult({
+        isError,
+        message,
+        params: {
+          speedScore,
+        },
+      });
+
+      if (isError) {
         reject();
       } else {
-        const speedScore = body.ruleGroups.SPEED.score;
-        if (!speedScore || speedScore < speedErrorThreshold) {
-          errors.push(`Speed score is ${speedScore}`);
-        }
-
         resolve();
       }
     });

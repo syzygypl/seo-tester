@@ -7,6 +7,33 @@ const jquery = require('jquery');
 const fs = require('fs');
 const path = require('path');
 
+class Results {
+  constructor(onlyErrors, params) {
+    this.onlyErrors = onlyErrors;
+    this.params = params;
+    this.results = [];
+  }
+
+  saveResult(result) {
+    this.results.push(result);
+  }
+
+  printResults() {
+    const results = this.results.filter(result => (!this.onlyErrors || result.isError));
+
+    if (!this.onlyErrors || results.length > 0) {
+      // eslint-disable-next-line prefer-template
+      console.log(`Results for ${this.params.url}`
+        + colors.dim(` (${this.params.bufferLength} bytes, type ${this.params.contentType})`));
+
+      this.results.forEach(result => {
+        const printWithColor = result.isError ? colors.red : colors.green;
+        console.log(printWithColor(result.message));
+      });
+    }
+  }
+}
+
 function downloadSite(initialUrl, rules) {
   const myCrawler = new Crawler(initialUrl);
 
@@ -24,28 +51,23 @@ function downloadSite(initialUrl, rules) {
       ['http://code.jquery.com/jquery.js'],
       (err, window) => {
         const $ = jquery(window);
-        const errors = [];
         const params = {
           url: queueItem.url,
+          bufferLength: responseBuffer.length,
+          contentType: response.headers['content-type'],
         };
+        const results = new Results(false, params);
 
         const rulePromises = [];
         rules.forEach(rule => {
-          const rulePromise = rule.run($, errors, params);
+          const rulePromise = rule.run($, results, params);
           if (rulePromise instanceof Promise) {
             rulePromises.push(rulePromise);
           }
         });
 
         Promise.all(rulePromises).then(() => {
-          if (errors.length > 0) {
-            console.log(colors.dim('Just received %s (%d bytes, type %s)'), queueItem.url,
-              responseBuffer.length, response.headers['content-type']);
-
-            while (errors.length > 0) {
-              console.log(colors.red(errors.shift()));
-            }
-          }
+          results.printResults();
         });
       }
     );
