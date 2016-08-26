@@ -1,0 +1,27 @@
+{
+  "name": "seotest",
+  "version": "0.1.0",
+  "description": "",
+  "main": "seotest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "jquery": "^3.1.0",
+    "jsdom": "^9.4.2",
+    "simplecrawler": "^1.0.1",
+    "sprintf-js": "^1.0.3",
+    "string": "^3.3.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.3.1",
+    "eslint-config-airbnb-base": "^5.0.3",
+    "eslint-plugin-import": "^1.14.0"
+  },
+  "engines": {
+    "node": "^6.1.0"
+  }
+}
