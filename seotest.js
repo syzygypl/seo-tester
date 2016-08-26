@@ -6,20 +6,11 @@ const jquery = require('jquery');
 const fs = require('fs');
 const path = require('path');
 
-const rulesDir = 'rules';
-const normalizedPath = path.join(__dirname, rulesDir);
-const rules = [];
-fs.readdirSync(normalizedPath).forEach(file => {
-  // eslint-disable-next-line global-require
-  rules.push(require(`./${rulesDir}/${file}`));
-});
-
-
-function downloadSite(initialUrl) {
+function downloadSite(initialUrl, rules) {
   const myCrawler = new Crawler(initialUrl);
 
-  myCrawler.interval = 250;
-  myCrawler.maxConcurrency = 5;
+  myCrawler.interval = 500;
+  myCrawler.maxConcurrency = 3;
   myCrawler.decodeResponses = true;
 
   myCrawler.on('fetchcomplete', (queueItem, responseBuffer, response) => {
@@ -33,19 +24,28 @@ function downloadSite(initialUrl) {
       (err, window) => {
         const $ = jquery(window);
         const errors = [];
+        const params = {
+          url: queueItem.url,
+        };
 
+        const rulePromises = [];
         rules.forEach(rule => {
-          rule($, errors);
+          const rulePromise = rule.run($, errors, params);
+          if (rulePromise instanceof Promise) {
+            rulePromises.push(rulePromise);
+          }
         });
 
-        if (errors.length > 0) {
-          console.log(colors.dim('Just received %s (%d bytes, type %s)'), queueItem.url,
-            responseBuffer.length, response.headers['content-type']);
+        Promise.all(rulePromises).then(() => {
+          if (errors.length > 0) {
+            console.log(colors.dim('Just received %s (%d bytes, type %s)'), queueItem.url,
+              responseBuffer.length, response.headers['content-type']);
 
-          while (errors.length > 0) {
-            console.log(colors.red(errors.shift()));
+            while (errors.length > 0) {
+              console.log(colors.red(errors.shift()));
+            }
           }
-        }
+        });
       }
     );
   });
@@ -56,8 +56,33 @@ function downloadSite(initialUrl) {
 }
 
 if (process.argv.length < 3) {
-  console.error('Usage: node seotest.js http://testsite.com');
+  console.error('Usage: node seotest.js http://testsite.com [enabled-rules, ...]');
   process.exit(1);
 }
 
-downloadSite(process.argv[2]);
+const enabledRules = process.argv.splice(3).map(rule => {
+  return string(rule).chompRight('.js').toString();
+});
+
+const rulesDir = 'rules';
+const normalizedPath = path.join(__dirname, rulesDir);
+const loadedRules = [];
+fs.readdirSync(normalizedPath).forEach(file => {
+  loadedRules.push({
+    name: string(file).chompRight('.js').toString(),
+    run: require(`./${rulesDir}/${file}`), // eslint-disable-line global-require
+  });
+});
+
+const rules = [];
+console.log(colors.green('Rules'));
+loadedRules.forEach(rule => {
+  const isEnabled = enabledRules.length === 0 || enabledRules.includes(rule.name);
+  console.log(
+    `* ${rule.name.toString()} [${isEnabled ? colors.green('enabled') : colors.red('disabled')}]`);
+  if (isEnabled) {
+    rules.push(rule);
+  }
+});
+
+downloadSite(process.argv[2], rules);
