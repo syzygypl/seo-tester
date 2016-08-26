@@ -10,3 +10,4 @@ node seotest.js http://testsite.com
 * alt in img tag
 * title in links
 * check for only one h1
+* PageSpeed Insights
