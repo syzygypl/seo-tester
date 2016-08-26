@@ -1,6 +1,7 @@
 const request = require('request');
 
 const apiKey = process.env.PAGE_SPEED_API_KEY;
+const speedErrorThreshold = process.env.PAGE_SPEED_ERROR_THRESHOLD;
 
 if (!apiKey) {
   console.warn(
@@ -23,7 +24,7 @@ module.exports = ($, errors, params) => (
         reject();
       } else {
         const speedScore = body.ruleGroups.SPEED.score;
-        if (!speedScore || speedScore < 60) {
+        if (!speedScore || speedScore < speedErrorThreshold) {
           errors.push(`Speed score is ${speedScore}`);
         }
 
