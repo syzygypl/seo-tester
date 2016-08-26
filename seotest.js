@@ -35,13 +35,13 @@ class Results {
 }
 
 function downloadSite(initialUrl, rules) {
-  const myCrawler = new Crawler(initialUrl);
+  const crawler = new Crawler(initialUrl);
 
-  myCrawler.interval = 500;
-  myCrawler.maxConcurrency = 3;
-  myCrawler.decodeResponses = true;
+  crawler.interval = 500;
+  crawler.maxConcurrency = 3;
+  crawler.decodeResponses = true;
 
-  myCrawler.on('fetchcomplete', (queueItem, responseBuffer, response) => {
+  crawler.on('fetchcomplete', (queueItem, responseBuffer, response) => {
     if (!string(response.headers['content-type']).startsWith('text/html')) {
       return;
     }
@@ -73,9 +73,9 @@ function downloadSite(initialUrl, rules) {
     );
   });
 
-  myCrawler.on('complete', () => console.log('Done!'));
+  crawler.on('complete', () => console.log('Done!'));
 
-  myCrawler.start();
+  crawler.start();
 }
 
 if (process.argv.length < 3) {
