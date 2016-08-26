@@ -1,9 +1,19 @@
 const Crawler = require('simplecrawler');
 const jsdom = require('jsdom');
 const colors = require('colors');
-const str = require('string');
+const string = require('string');
 const jquery = require('jquery');
-const sprintf = require('sprintf-js');
+const fs = require('fs');
+const path = require('path');
+
+const rulesDir = 'rules';
+const normalizedPath = path.join(__dirname, rulesDir);
+const rules = [];
+fs.readdirSync(normalizedPath).forEach(file => {
+  // eslint-disable-next-line global-require
+  rules.push(require(`./${rulesDir}/${file}`));
+});
+
 
 function downloadSite(initialUrl) {
   const myCrawler = new Crawler(initialUrl);
@@ -13,7 +23,7 @@ function downloadSite(initialUrl) {
   myCrawler.decodeResponses = true;
 
   myCrawler.on('fetchcomplete', (queueItem, responseBuffer, response) => {
-    if (!str(response.headers['content-type']).startsWith('text/html')) {
+    if (!string(response.headers['content-type']).startsWith('text/html')) {
       return;
     }
 
@@ -22,30 +32,10 @@ function downloadSite(initialUrl) {
       ['http://code.jquery.com/jquery.js'],
       (err, window) => {
         const $ = jquery(window);
-
         const errors = [];
 
-        const h1 = $('h1');
-        const h1Count = h1.length;
-        if (h1Count !== 1) {
-          errors.push(sprintf.sprintf('Found %d h1s', h1Count));
-        }
-
-        const images = $('img');
-        images.each((index, element) => {
-          const alt = element ? $(element).prop('alt') : '';
-          if (alt.length === 0) {
-            errors.push(sprintf.sprintf('There is no alt in img tag, src: %s',
-              $(element).prop('src')));
-          }
-        });
-
-        const a = $('a');
-        a.each((index, element) => {
-          const title = element ? $(element).prop('title') : '';
-          if (title.length === 0) {
-            errors.push(sprintf.sprintf('Link has no title, href: %s', $(element).prop('href')));
-          }
+        rules.forEach(rule => {
+          rule($, errors);
         });
 
         if (errors.length > 0) {
@@ -66,7 +56,7 @@ function downloadSite(initialUrl) {
 }
 
 if (process.argv.length < 3) {
-  console.log('Usage: node seotest.js http://testsite.com');
+  console.error('Usage: node seotest.js http://testsite.com');
   process.exit(1);
 }
 
