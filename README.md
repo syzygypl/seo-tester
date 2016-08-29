@@ -1,7 +1,7 @@
 # Usage
 
+Pull repo. Then:
 ```bash
-pull repo
 npm install
 node seotest.js http://testsite.com [enabled-rules, ...]
 ```
@@ -10,4 +10,4 @@ node seotest.js http://testsite.com [enabled-rules, ...]
 * alt in img tag
 * title in links
 * check for only one h1
-* PageSpeed Insights
+* PageSpeed Insights (you must provide Page Speed API key)
