@@ -1,6 +1,6 @@
 # Usage
 
-Pull repo. Then:
+Pull repo, create .env file (example in .env-example) with environment variables. Then:
 ```bash
 npm install
 node seotest.js http://testsite.com [enabled-rules, ...]
