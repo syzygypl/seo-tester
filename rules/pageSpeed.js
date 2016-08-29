@@ -40,7 +40,7 @@ module.exports = ($, results, params) => (
         },
       });
 
-      if (isError) {
+      if (pageSpeedError) {
         reject();
       } else {
         resolve();
