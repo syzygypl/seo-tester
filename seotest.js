@@ -22,6 +22,7 @@ class Results {
     const results = this.results.filter(result => (!this.onlyErrors || result.isError));
 
     if (!this.onlyErrors || results.length > 0) {
+      console.log('');
       // eslint-disable-next-line prefer-template
       console.log(`Results for ${this.params.url}`
         + colors.dim(` (${this.params.bufferLength} bytes, type ${this.params.contentType})`));
@@ -42,6 +43,8 @@ function downloadSite(initialUrl, rules) {
   crawler.decodeResponses = true;
 
   crawler.on('fetchcomplete', (queueItem, responseBuffer, response) => {
+    process.stdout.write('.');
+
     if (!string(response.headers['content-type']).startsWith('text/html')) {
       return;
     }
