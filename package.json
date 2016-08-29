@@ -13,6 +13,7 @@
     "dotenv": "^2.0.0",
     "jquery": "^3.1.0",
     "jsdom": "^9.4.2",
+    "minimist": "^1.2.0",
     "request": "^2.74.0",
     "simplecrawler": "^1.0.1",
     "string": "^3.3.1"

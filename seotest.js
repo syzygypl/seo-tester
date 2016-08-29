@@ -6,6 +6,7 @@ const string = require('string');
 const jquery = require('jquery');
 const fs = require('fs');
 const path = require('path');
+const parseArgs = require('minimist');
 
 class Results {
   constructor(onlyErrors, params) {
@@ -19,15 +20,15 @@ class Results {
   }
 
   printResults() {
-    const results = this.results.filter(result => (!this.onlyErrors || result.isError));
+    const activeResults = this.results.filter(result => (!this.onlyErrors || result.isError));
 
-    if (!this.onlyErrors || results.length > 0) {
+    if (!this.onlyErrors || activeResults.length > 0) {
       console.log('');
       // eslint-disable-next-line prefer-template
       console.log(`Results for ${this.params.url}`
         + colors.dim(` (${this.params.bufferLength} bytes, type ${this.params.contentType})`));
 
-      results.forEach(result => {
+      activeResults.forEach(result => {
         const printWithColor = result.isError ? colors.red : colors.green;
         console.log(printWithColor(result.message));
       });
@@ -35,7 +36,7 @@ class Results {
   }
 }
 
-function downloadSite(initialUrl, rules) {
+function downloadSite(initialUrl, rules, verbose) {
   const crawler = new Crawler(initialUrl);
 
   crawler.interval = 500;
@@ -59,7 +60,7 @@ function downloadSite(initialUrl, rules) {
           bufferLength: responseBuffer.length,
           contentType: response.headers['content-type'],
         };
-        const results = new Results(true, params);
+        const results = new Results(!verbose, params);
 
         const rulePromises = [];
         rules.forEach(rule => {
@@ -76,17 +77,22 @@ function downloadSite(initialUrl, rules) {
     );
   });
 
-  crawler.on('complete', () => console.log('Done!'));
+  crawler.on('complete', () => {
+    console.log('');
+    console.log('Done crawling! Async rules may still be in progress.');
+  });
 
   crawler.start();
 }
 
-if (process.argv.length < 3) {
+const argv = parseArgs(process.argv.slice(2));
+
+if (argv._.length < 1) {
   console.error('Usage: node seotest.js http://testsite.com [enabled-rules, ...]');
   process.exit(1);
 }
 
-const enabledRules = process.argv.splice(3).map(rule => (
+const enabledRules = argv._.slice(1).map(rule => (
   string(rule).chompRight('.js').toString()
 ));
 
@@ -111,4 +117,4 @@ loadedRules.forEach(rule => {
   }
 });
 
-downloadSite(process.argv[2], rules);
+downloadSite(argv._[0], rules, argv.verbose || argv.v);
