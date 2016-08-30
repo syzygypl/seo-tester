@@ -72,6 +72,8 @@ function downloadSite(initialUrl, rules, verbose) {
 
         Promise.all(rulePromises).then(() => {
           results.printResults();
+        }, () => {
+          results.printResults();
         });
       }
     );
